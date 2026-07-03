@@ -1,0 +1,87 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'EMAIL_TO', defaultValue: 'admin@example.com', description: 'Recipient email address for build status notifications')
+    }
+
+    triggers {
+        githubPush() // Triggers build when changes are pushed to GitHub
+    }
+
+    environment {
+        PYTHON_ENV = "venv"
+        GIT_REPO = "https://github.com/tb-repo/jenkins-git-cicd.git"
+        EC2_PUBLIC_IP = credentials('EC2-IP')      // Fetches target IP from Jenkins secret 'EC2-IP'
+        EC2_USER = credentials('EC2-USER')        // Fetches target username from Jenkins secret 'EC2-USER'
+        EC2_CREDENTIALS_ID = "HV-B16A-TB-EC2-Keypair"
+    }
+
+    stages {
+        stage ("Git Checkout") {
+            steps {
+                git branch: 'main',  
+                    credentialsId: 'HV-B16A-TB-Git', 
+                    url: "${GIT_REPO}"
+            }
+        }        
+
+        stage('Build') {
+            steps {
+                echo 'Installing dependencies...'
+                sh '''
+                    python3 -m venv ${PYTHON_ENV}
+                    . ${PYTHON_ENV}/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running unit tests...'
+                sh '''
+                    . ${PYTHON_ENV}/bin/activate
+                    pytest test_app.py --junitxml=test-reports/results.xml
+                '''
+            }
+            post {
+                always {
+                    junit 'test-reports/results.xml'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application to AWS EC2 staging environment...'
+                sshagent(credentials: ["${EC2_CREDENTIALS_ID}"]) {
+                    // Ensure the target directory exists on the EC2 instance
+                    sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} 'mkdir -p ~/flask_Practice'"
+                    
+                    // Copy repository contents to EC2
+                    sh "scp -o StrictHostKeyChecking=no -r * ${EC2_USER}@${EC2_PUBLIC_IP}:~/flask_Practice/"
+                    
+                    // Execute startup script on EC2
+                    sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} 'cd ~/flask_Practice && chmod +x start_flask.sh && ./start_flask.sh'"
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline completed successfully!"
+            mail to: "${params.EMAIL_TO}",
+                 subject: "SUCCESS: Jenkins Pipeline Build #${BUILD_NUMBER} - ${JOB_NAME}",
+                 body: "Great news! The pipeline completed successfully for build #${BUILD_NUMBER}.\n\nView build details here: ${BUILD_URL}"
+        }
+        failure {
+            echo "Pipeline failed. Check build logs."
+            mail to: "${params.EMAIL_TO}",
+                 subject: "FAILURE: Jenkins Pipeline Build #${BUILD_NUMBER} - ${JOB_NAME}",
+                 body: "ALERT! The pipeline failed for build #${BUILD_NUMBER}.\n\nPlease review the logs at: ${BUILD_URL}"
+        }
+    }
+}
