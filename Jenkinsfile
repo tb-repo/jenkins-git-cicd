@@ -12,8 +12,8 @@ pipeline {
     environment {
         PYTHON_ENV = "venv"
         GIT_REPO = "https://github.com/tb-repo/jenkins-git-cicd.git"
-        EC2_PUBLIC_IP = credentials('EC2-IP')      // Fetches target IP from Jenkins secret 'EC2-IP'
-        EC2_USER = credentials('EC2-USER')        // Fetches target username from Jenkins secret 'EC2-USER'
+        EC2_PUBLIC_IP = credentials('HV-B16A-TB-EC2-IP')
+        EC2_USER = credentials('HV-B16A-TB-EC2-USER')
         EC2_CREDENTIALS_ID = "HV-B16A-TB-EC2-Keypair"
     }
 
