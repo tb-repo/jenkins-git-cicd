@@ -30,11 +30,17 @@ pipeline {
             steps {
                 echo 'Installing dependencies...'
                 sh '''
-                    sudo apt update
-                    sudo apt install -y python3-pip python3-venv
-                    python3 -m venv ${PYTHON_ENV}
+                    # Remove any existing/corrupted venv
+                    rm -rf ${PYTHON_ENV}
+                    
+                    # Create venv without pip (works without python3-venv package)
+                    python3 -m venv --without-pip ${PYTHON_ENV}
+                    
+                    # Bootstrap pip inside the virtualenv
+                    curl -sS https://bootstrap.pypa.io/get-pip.py | ./${PYTHON_ENV}/bin/python3
+                    
+                    # Activate and install dependencies
                     . ${PYTHON_ENV}/bin/activate
-                    pip install --upgrade pip
                     pip install -r requirements.txt
                 '''
             }
