@@ -16,7 +16,7 @@ pipeline {
         EC2_USER = credentials('HV-B16A-TB-EC2-USER')
         EC2_CREDENTIALS_ID = "HV-B16A-TB-EC2-Keypair"
         MONGO_URI = credentials('HV-B16A-TB-MONGO-URI')
-        SECRET_KEY = credentials('HV-B16A-TB-SECRET-KEY')    
+        SECRET_KEY = credentials('HV-B16A-TB-SEC-KEY')    
     }
 
     stages {
@@ -108,7 +108,7 @@ pipeline {
                 }
             }
         }
-    } // <-- This is the closing bracket for stages that was missing
+    }
 
     post {
         success {
