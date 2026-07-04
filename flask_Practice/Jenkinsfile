@@ -86,11 +86,16 @@ pipeline {
                                 
                                 # Stop any previous running instances of the app to free up port 5000
                                 pkill -f "app.py" || true
-                                
+
+                                #Install pip
+                                sudo apt update
+                                sudo apt install python3-pip
+                                sudo apt update python3-pip
+                                sudo apt install python3.14-venv
+
                                 # Setup the Python environment
                                 python3 -m venv venv
                                 . venv/bin/activate
-                                pip install --upgrade pip
                                 pip install -r requirements.txt
                                 
                                 # Create the database .env file
