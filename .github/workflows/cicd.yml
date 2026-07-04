@@ -80,7 +80,7 @@ jobs:
             rm -rf ~/git_cicd/stage_temp
             cd ~/git_cicd/stage
             
-            pkill -f "python3.*port=5100" || true
+            pkill -f "[p]ython3.*port=5100" || true
             
             python3 -m venv venv
             . venv/bin/activate
@@ -126,7 +126,7 @@ jobs:
             rm -rf ~/git_cicd/prod_temp
             cd ~/git_cicd/prod
             
-            pkill -f "python3.*port=5000" || true
+            pkill -f "[p]ython3.*port=5000" || true
             
             python3 -m venv venv
             . venv/bin/activate
