@@ -1,0 +1,101 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'EMAIL_TO', defaultValue: 'thiagarajanb@gmail.com', description: 'Recipient email address for build status notifications')
+    }
+
+    triggers {
+        githubPush() // Triggers build when changes are pushed to GitHub
+    }
+
+    environment {
+        PYTHON_ENV = "venv"
+        GIT_REPO = "https://github.com/tb-repo/jenkins-git-cicd.git"
+        EC2_PUBLIC_IP = credentials('HV-B16A-TB-EC2-IP')
+        EC2_USER = credentials('HV-B16A-TB-EC2-USER')
+        EC2_CREDENTIALS_ID = "HV-B16A-TB-EC2-Keypair"
+    }
+
+    stages {
+        stage ("Git Checkout") {
+            steps {
+                git branch: 'main',  
+                    credentialsId: 'HV-B16A-TB-Git', 
+                    url: "${GIT_REPO}"
+            }
+        }        
+
+        stage('Build') {
+            steps {
+                echo 'Installing dependencies...'
+                dir('flask_Practice') {
+                    sh '''
+                        # Remove any existing/corrupted venv
+                        rm -rf ${PYTHON_ENV}
+                        
+                        # Create venv without pip (works without python3-venv package)
+                        python3 -m venv --without-pip ${PYTHON_ENV}
+                        
+                        # Bootstrap pip inside the virtualenv
+                        curl -sS https://bootstrap.pypa.io/get-pip.py | ./${PYTHON_ENV}/bin/python3
+                        
+                        # Activate and install dependencies
+                        . ${PYTHON_ENV}/bin/activate
+                        pip install -r requirements.txt
+                    '''
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running unit tests...'
+                dir('flask_Practice') {
+                    sh '''
+                        . ${PYTHON_ENV}/bin/activate
+                        pytest test_app.py --junitxml=test-reports/results.xml
+                    '''
+                }
+            }
+            post {
+                always {
+                    junit 'flask_Practice/test-reports/results.xml'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying application to AWS EC2 staging environment...'
+                dir('flask_Practice') {
+                    sshagent(credentials: ["${EC2_CREDENTIALS_ID}"]) {
+                        // Ensure the target directory exists on the EC2 instance
+                        sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} 'mkdir -p ~/flask_Practice'"
+                        
+                        // Copy repository contents to EC2
+                        sh "scp -o StrictHostKeyChecking=no -r * ${EC2_USER}@${EC2_PUBLIC_IP}:~/flask_Practice/"
+                        
+                        // Execute startup script on EC2
+                        sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} 'cd ~/flask_Practice && chmod +x start_flask.sh && ./start_flask.sh'"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline completed successfully!"
+            mail to: "${params.EMAIL_TO}",
+                 subject: "SUCCESS: Jenkins Pipeline Build #${BUILD_NUMBER} - ${JOB_NAME}",
+                 body: "Great news! The pipeline completed successfully for build #${BUILD_NUMBER}.\n\nView build details here: ${BUILD_URL}"
+        }
+        failure {
+            echo "Pipeline failed. Check build logs."
+            mail to: "${params.EMAIL_TO}",
+                 subject: "FAILURE: Jenkins Pipeline Build #${BUILD_NUMBER} - ${JOB_NAME}",
+                 body: "ALERT! The pipeline failed for build #${BUILD_NUMBER}.\n\nPlease review the logs at: ${BUILD_URL}"
+        }
+    }
+}
