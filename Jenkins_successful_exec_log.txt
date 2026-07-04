@@ -1,0 +1,430 @@
+Started by user herovired
+
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Still waiting to schedule task
+‘AWS_lucky’ is reserved for jobs with matching label expression
+‘Avinash _Nodes’ is reserved for jobs with matching label expression
+‘Coyote-Linux
+’ is offline
+‘Linux-Chakshu’ is reserved for jobs with matching label expression
+‘VishnuR’ is reserved for jobs with matching label expression
+‘ahamed-linux’ is reserved for jobs with matching label expression
+‘asdasd
+’ is offline
+‘linux-abhi’ is reserved for jobs with matching label expression
+‘linux-rahat’ is reserved for jobs with matching label expression
+‘linux-sc
+’ is offline
+‘linux-sukant’ is reserved for jobs with matching label expression
+‘linux_prashant’ is reserved for jobs with matching label expression
+‘linux_top’ is reserved for jobs with matching label expression
+‘linuxsaro’ is reserved for jobs with matching label expression
+‘sm-linux-ec2-node’ is reserved for jobs with matching label expression
+Running on Jenkins
+ in /var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment
+[Pipeline] {
+[Pipeline] withCredentials
+Masking supported pattern matches of $EC2_USER or $EC2_PUBLIC_IP or $MONGO_URI or $SECRET_KEY
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Git Checkout)
+[Pipeline] git
+The recommended git tool is: NONE
+using credential HV-B16A-TB-Git
+ > git rev-parse --resolve-git-dir /var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/tb-repo/jenkins-git-cicd.git # timeout=10
+Fetching upstream changes from https://github.com/tb-repo/jenkins-git-cicd.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.43.0'
+using GIT_ASKPASS to set credentials My git creds
+ > git fetch --tags --force --progress -- https://github.com/tb-repo/jenkins-git-cicd.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/main^{commit} # timeout=10
+Checking out Revision e83dd13f75d85ee8dc29ff3d5d02d3f22f72bd01 (refs/remotes/origin/main)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f e83dd13f75d85ee8dc29ff3d5d02d3f22f72bd01 # timeout=10
+ > git branch -a -v --no-abbrev # timeout=10
+ > git branch -D main # timeout=10
+ > git checkout -b main e83dd13f75d85ee8dc29ff3d5d02d3f22f72bd01 # timeout=10
+Commit message: "Updated Jenkinsfile to change the deployment steps"
+ > git rev-list --no-walk e83dd13f75d85ee8dc29ff3d5d02d3f22f72bd01 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build)
+[Pipeline] echo
+Installing dependencies...
+[Pipeline] dir
+Running in /var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/flask_Practice
+[Pipeline] {
+[Pipeline] sh
++ rm -rf venv
++ python3 -m venv --without-pip venv
++ + curl./venv/bin/python3 -sS
+ https://bootstrap.pypa.io/get-pip.py
+Collecting pip
+  Using cached pip-26.1.2-py3-none-any.whl.metadata (4.6 kB)
+Using cached pip-26.1.2-py3-none-any.whl (1.8 MB)
+Installing collected packages: pip
+Successfully installed pip-26.1.2
++ . venv/bin/activate
++ deactivate nondestructive
++ [ -n  ]
++ [ -n  ]
++ hash -r
++ [ -n  ]
++ unset VIRTUAL_ENV
++ unset VIRTUAL_ENV_PROMPT
++ [ ! nondestructive = nondestructive ]
++ [  = cygwin ]
++ [  = msys ]
++ export VIRTUAL_ENV=/var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/flask_Practice/venv
++ _OLD_VIRTUAL_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/snap/bin
++ PATH=/var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/flask_Practice/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/snap/bin
++ export PATH
++ [ -n  ]
++ [ -z  ]
++ _OLD_VIRTUAL_PS1=$ 
++ PS1=(venv) $ 
++ export PS1
++ VIRTUAL_ENV_PROMPT=(venv) 
++ export VIRTUAL_ENV_PROMPT
++ hash -r
++ pip install -r requirements.txt
+Collecting Flask (from -r requirements.txt (line 1))
+  Using cached flask-3.1.3-py3-none-any.whl.metadata (3.2 kB)
+Collecting Flask-PyMongo (from -r requirements.txt (line 2))
+  Using cached flask_pymongo-3.0.1-py3-none-any.whl.metadata (3.5 kB)
+Collecting python-dotenv (from -r requirements.txt (line 3))
+  Using cached python_dotenv-1.2.2-py3-none-any.whl.metadata (27 kB)
+Collecting pymongo (from -r requirements.txt (line 4))
+  Using cached pymongo-4.17.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (10 kB)
+Collecting certifi (from -r requirements.txt (line 5))
+  Using cached certifi-2026.6.17-py3-none-any.whl.metadata (2.5 kB)
+Collecting pytest (from -r requirements.txt (line 6))
+  Using cached pytest-9.1.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting pylint (from -r requirements.txt (line 7))
+  Using cached pylint-4.0.6-py3-none-any.whl.metadata (12 kB)
+Collecting bandit (from -r requirements.txt (line 8))
+  Using cached bandit-1.9.4-py3-none-any.whl.metadata (7.1 kB)
+Collecting black (from -r requirements.txt (line 9))
+  Using cached black-26.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (95 kB)
+Collecting blinker>=1.9.0 (from Flask->-r requirements.txt (line 1))
+  Using cached blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+Collecting click>=8.1.3 (from Flask->-r requirements.txt (line 1))
+  Using cached click-8.4.2-py3-none-any.whl.metadata (2.6 kB)
+Collecting itsdangerous>=2.2.0 (from Flask->-r requirements.txt (line 1))
+  Using cached itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting jinja2>=3.1.2 (from Flask->-r requirements.txt (line 1))
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting markupsafe>=2.1.1 (from Flask->-r requirements.txt (line 1))
+  Using cached markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Collecting werkzeug>=3.1.0 (from Flask->-r requirements.txt (line 1))
+  Using cached werkzeug-3.1.8-py3-none-any.whl.metadata (4.0 kB)
+Collecting dnspython<3.0.0,>=2.6.1 (from pymongo->-r requirements.txt (line 4))
+  Using cached dnspython-2.8.0-py3-none-any.whl.metadata (5.7 kB)
+Collecting iniconfig>=1.0.1 (from pytest->-r requirements.txt (line 6))
+  Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting packaging>=22 (from pytest->-r requirements.txt (line 6))
+  Using cached packaging-26.2-py3-none-any.whl.metadata (3.5 kB)
+Collecting pluggy<2,>=1.5 (from pytest->-r requirements.txt (line 6))
+  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+Collecting pygments>=2.7.2 (from pytest->-r requirements.txt (line 6))
+  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting astroid<=4.1.dev0,>=4.0.2 (from pylint->-r requirements.txt (line 7))
+  Using cached astroid-4.0.4-py3-none-any.whl.metadata (4.4 kB)
+Collecting dill>=0.3.6 (from pylint->-r requirements.txt (line 7))
+  Using cached dill-0.4.1-py3-none-any.whl.metadata (10 kB)
+Collecting isort!=5.13,<9,>=5 (from pylint->-r requirements.txt (line 7))
+  Using cached isort-8.0.1-py3-none-any.whl.metadata (11 kB)
+Collecting mccabe<0.8,>=0.6 (from pylint->-r requirements.txt (line 7))
+  Using cached mccabe-0.7.0-py2.py3-none-any.whl.metadata (5.0 kB)
+Collecting platformdirs>=2.2 (from pylint->-r requirements.txt (line 7))
+  Using cached platformdirs-4.10.0-py3-none-any.whl.metadata (5.5 kB)
+Collecting tomlkit>=0.10.1 (from pylint->-r requirements.txt (line 7))
+  Using cached tomlkit-0.15.0-py3-none-any.whl.metadata (2.8 kB)
+Collecting PyYAML>=5.3.1 (from bandit->-r requirements.txt (line 8))
+  Using cached pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting stevedore>=1.20.0 (from bandit->-r requirements.txt (line 8))
+  Using cached stevedore-5.9.0-py3-none-any.whl.metadata (2.3 kB)
+Collecting rich (from bandit->-r requirements.txt (line 8))
+  Using cached rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+Collecting mypy-extensions>=0.4.3 (from black->-r requirements.txt (line 9))
+  Using cached mypy_extensions-1.1.0-py3-none-any.whl.metadata (1.1 kB)
+Collecting pathspec>=1.0.0 (from black->-r requirements.txt (line 9))
+  Using cached pathspec-1.1.1-py3-none-any.whl.metadata (14 kB)
+Collecting pytokens~=0.4.0 (from black->-r requirements.txt (line 9))
+  Using cached pytokens-0.4.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+Collecting markdown-it-py>=2.2.0 (from rich->bandit->-r requirements.txt (line 8))
+  Using cached markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich->bandit->-r requirements.txt (line 8))
+  Using cached mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Using cached flask-3.1.3-py3-none-any.whl (103 kB)
+Using cached flask_pymongo-3.0.1-py3-none-any.whl (11 kB)
+Using cached python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+Using cached pymongo-4.17.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.8 MB)
+Using cached dnspython-2.8.0-py3-none-any.whl (331 kB)
+Using cached certifi-2026.6.17-py3-none-any.whl (133 kB)
+Using cached pytest-9.1.1-py3-none-any.whl (386 kB)
+Using cached pluggy-1.6.0-py3-none-any.whl (20 kB)
+Using cached pylint-4.0.6-py3-none-any.whl (538 kB)
+Using cached astroid-4.0.4-py3-none-any.whl (276 kB)
+Using cached isort-8.0.1-py3-none-any.whl (89 kB)
+Using cached mccabe-0.7.0-py2.py3-none-any.whl (7.3 kB)
+Using cached bandit-1.9.4-py3-none-any.whl (134 kB)
+Using cached black-26.5.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.9 MB)
+Using cached pytokens-0.4.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (269 kB)
+Using cached blinker-1.9.0-py3-none-any.whl (8.5 kB)
+Using cached click-8.4.2-py3-none-any.whl (119 kB)
+Using cached dill-0.4.1-py3-none-any.whl (120 kB)
+Using cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+Using cached itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached markupsafe-3.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+Using cached mypy_extensions-1.1.0-py3-none-any.whl (5.0 kB)
+Using cached packaging-26.2-py3-none-any.whl (100 kB)
+Using cached pathspec-1.1.1-py3-none-any.whl (57 kB)
+Using cached platformdirs-4.10.0-py3-none-any.whl (22 kB)
+Using cached pygments-2.20.0-py3-none-any.whl (1.2 MB)
+Using cached pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+Using cached stevedore-5.9.0-py3-none-any.whl (54 kB)
+Using cached tomlkit-0.15.0-py3-none-any.whl (41 kB)
+Using cached werkzeug-3.1.8-py3-none-any.whl (226 kB)
+Using cached rich-15.0.0-py3-none-any.whl (310 kB)
+Using cached markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+Using cached mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Installing collected packages: tomlkit, stevedore, PyYAML, pytokens, python-dotenv, pygments, pluggy, platformdirs, pathspec, packaging, mypy-extensions, mdurl, mccabe, markupsafe, itsdangerous, isort, iniconfig, dnspython, dill, click, certifi, blinker, astroid, werkzeug, pytest, pymongo, pylint, markdown-it-py, jinja2, black, rich, Flask, Flask-PyMongo, bandit
+
+Successfully installed Flask-3.1.3 Flask-PyMongo-3.0.1 PyYAML-6.0.3 astroid-4.0.4 bandit-1.9.4 black-26.5.1 blinker-1.9.0 certifi-2026.6.17 click-8.4.2 dill-0.4.1 dnspython-2.8.0 iniconfig-2.3.0 isort-8.0.1 itsdangerous-2.2.0 jinja2-3.1.6 markdown-it-py-4.2.0 markupsafe-3.0.3 mccabe-0.7.0 mdurl-0.1.2 mypy-extensions-1.1.0 packaging-26.2 pathspec-1.1.1 platformdirs-4.10.0 pluggy-1.6.0 pygments-2.20.0 pylint-4.0.6 pymongo-4.17.0 pytest-9.1.1 python-dotenv-1.2.2 pytokens-0.4.1 rich-15.0.0 stevedore-5.9.0 tomlkit-0.15.0 werkzeug-3.1.8
+[Pipeline] }
+[Pipeline] // dir
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Test)
+[Pipeline] echo
+Running unit tests...
+[Pipeline] dir
+Running in /var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/flask_Practice
+[Pipeline] {
+[Pipeline] sh
++ . venv/bin/activate
++ deactivate nondestructive
++ [ -n  ]
++ [ -n  ]
++ hash -r
++ [ -n  ]
++ unset VIRTUAL_ENV
++ unset VIRTUAL_ENV_PROMPT
++ [ ! nondestructive = nondestructive ]
++ [  = cygwin ]
++ [  = msys ]
++ export VIRTUAL_ENV=/var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/flask_Practice/venv
++ _OLD_VIRTUAL_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/snap/bin
++ PATH=/var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/flask_Practice/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/snap/bin
++ export PATH
++ [ -n  ]
++ [ -z  ]
++ _OLD_VIRTUAL_PS1=$ 
++ PS1=(venv) $ 
++ export PS1
++ VIRTUAL_ENV_PROMPT=(venv) 
++ export VIRTUAL_ENV_PROMPT
++ hash -r
++ pytest test_app.py --junitxml=test-reports/results.xml
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0
+rootdir: /var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/flask_Practice
+collected 4 items
+
+test_app.py ....                                                         [100%]
+
+- generated xml file: /var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/flask_Practice/test-reports/results.xml -
+============================== 4 passed in 4.95s ===============================
+[Pipeline] }
+[Pipeline] // dir
+Post stage
+[Pipeline] junit
+Recording test results
+[Checks API] No suitable checks publisher found.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Deploy)
+[Pipeline] echo
+Deploying application to AWS EC2 staging environment...
+[Pipeline] dir
+Running in /var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/flask_Practice
+[Pipeline] {
+[Pipeline] sshagent
+[ssh-agent] Using credentials **** (My EC2 Keypair)
+$ ssh-agent
+SSH_AUTH_SOCK=/tmp/ssh-a8YDXSFmQS0Z/agent.1566036
+SSH_AGENT_PID=1566039
+Running ssh-add (command line suppressed)
+Identity added: /var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/flask_Practice@tmp/private_key_8870378215215611704.key (/var/lib/jenkins/workspace/HV-B16A-TB-CICD-Assignment/flask_Practice@tmp/private_key_8870378215215611704.key)
+[ssh-agent] Started.
+[Pipeline] {
+[Pipeline] sh
+Warning: A secret was passed to "sh" using Groovy String interpolation, which is insecure.
+		 Affected argument(s) used the following variable(s): [EC2_USER, EC2_PUBLIC_IP]
+		 See https://jenkins.io/redirect/groovy-string-interpolation for details.
++ ssh -o StrictHostKeyChecking=no ****@**** rm -rf ~/flask_Practice && mkdir -p ~/flask_Practice
+[Pipeline] sh
++ rm -rf venv __pycache__ .pytest_cache test-reports
+[Pipeline] sh
+Warning: A secret was passed to "sh" using Groovy String interpolation, which is insecure.
+		 Affected argument(s) used the following variable(s): [EC2_USER, EC2_PUBLIC_IP]
+		 See https://jenkins.io/redirect/groovy-string-interpolation for details.
++ scp -o StrictHostKeyChecking=no -r Jenkinsfile LICENSE README.md README.pdf app.py azure-pipelines.yml requirements.txt start_flask.sh templates test_app.py ****@****:~/flask_Practice/
+[Pipeline] sh
+Warning: A secret was passed to "sh" using Groovy String interpolation, which is insecure.
+		 Affected argument(s) used the following variable(s): [EC2_USER, EC2_PUBLIC_IP, MONGO_URI, SECRET_KEY]
+		 See https://jenkins.io/redirect/groovy-string-interpolation for details.
++ ssh -o StrictHostKeyChecking=no ****@**** bash -s
+Python dependencies (pip & venv) are already installed. Skipping system updates.
+Requirement already satisfied: pip in ./venv/lib/python3.14/site-packages (25.1.1)
+Collecting pip
+  Downloading pip-26.1.2-py3-none-any.whl.metadata (4.6 kB)
+Downloading pip-26.1.2-py3-none-any.whl (1.8 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.8/1.8 MB 76.6 MB/s eta 0:00:00
+Installing collected packages: pip
+  Attempting uninstall: pip
+    Found existing installation: pip 25.1.1
+    Uninstalling pip-25.1.1:
+      Successfully uninstalled pip-25.1.1
+Successfully installed pip-26.1.2
+Collecting Flask (from -r requirements.txt (line 1))
+  Using cached flask-3.1.3-py3-none-any.whl.metadata (3.2 kB)
+Collecting Flask-PyMongo (from -r requirements.txt (line 2))
+  Using cached flask_pymongo-3.0.1-py3-none-any.whl.metadata (3.5 kB)
+Collecting python-dotenv (from -r requirements.txt (line 3))
+  Using cached python_dotenv-1.2.2-py3-none-any.whl.metadata (27 kB)
+Collecting pymongo (from -r requirements.txt (line 4))
+  Using cached pymongo-4.17.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (10 kB)
+Collecting certifi (from -r requirements.txt (line 5))
+  Using cached certifi-2026.6.17-py3-none-any.whl.metadata (2.5 kB)
+Collecting pytest (from -r requirements.txt (line 6))
+  Using cached pytest-9.1.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting pylint (from -r requirements.txt (line 7))
+  Using cached pylint-4.0.6-py3-none-any.whl.metadata (12 kB)
+Collecting bandit (from -r requirements.txt (line 8))
+  Using cached bandit-1.9.4-py3-none-any.whl.metadata (7.1 kB)
+Collecting black (from -r requirements.txt (line 9))
+  Using cached black-26.5.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (95 kB)
+Collecting blinker>=1.9.0 (from Flask->-r requirements.txt (line 1))
+  Using cached blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+Collecting click>=8.1.3 (from Flask->-r requirements.txt (line 1))
+  Using cached click-8.4.2-py3-none-any.whl.metadata (2.6 kB)
+Collecting itsdangerous>=2.2.0 (from Flask->-r requirements.txt (line 1))
+  Using cached itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting jinja2>=3.1.2 (from Flask->-r requirements.txt (line 1))
+  Using cached jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting markupsafe>=2.1.1 (from Flask->-r requirements.txt (line 1))
+  Using cached markupsafe-3.0.3-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Collecting werkzeug>=3.1.0 (from Flask->-r requirements.txt (line 1))
+  Using cached werkzeug-3.1.8-py3-none-any.whl.metadata (4.0 kB)
+Collecting dnspython<3.0.0,>=2.6.1 (from pymongo->-r requirements.txt (line 4))
+  Using cached dnspython-2.8.0-py3-none-any.whl.metadata (5.7 kB)
+Collecting iniconfig>=1.0.1 (from pytest->-r requirements.txt (line 6))
+  Using cached iniconfig-2.3.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting packaging>=22 (from pytest->-r requirements.txt (line 6))
+  Using cached packaging-26.2-py3-none-any.whl.metadata (3.5 kB)
+Collecting pluggy<2,>=1.5 (from pytest->-r requirements.txt (line 6))
+  Using cached pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+Collecting pygments>=2.7.2 (from pytest->-r requirements.txt (line 6))
+  Using cached pygments-2.20.0-py3-none-any.whl.metadata (2.5 kB)
+Collecting astroid<=4.1.dev0,>=4.0.2 (from pylint->-r requirements.txt (line 7))
+  Using cached astroid-4.0.4-py3-none-any.whl.metadata (4.4 kB)
+Collecting dill>=0.3.6 (from pylint->-r requirements.txt (line 7))
+  Using cached dill-0.4.1-py3-none-any.whl.metadata (10 kB)
+Collecting isort!=5.13,<9,>=5 (from pylint->-r requirements.txt (line 7))
+  Using cached isort-8.0.1-py3-none-any.whl.metadata (11 kB)
+Collecting mccabe<0.8,>=0.6 (from pylint->-r requirements.txt (line 7))
+  Using cached mccabe-0.7.0-py2.py3-none-any.whl.metadata (5.0 kB)
+Collecting platformdirs>=2.2 (from pylint->-r requirements.txt (line 7))
+  Using cached platformdirs-4.10.0-py3-none-any.whl.metadata (5.5 kB)
+Collecting tomlkit>=0.10.1 (from pylint->-r requirements.txt (line 7))
+  Using cached tomlkit-0.15.0-py3-none-any.whl.metadata (2.8 kB)
+Collecting PyYAML>=5.3.1 (from bandit->-r requirements.txt (line 8))
+  Using cached pyyaml-6.0.3-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting stevedore>=1.20.0 (from bandit->-r requirements.txt (line 8))
+  Using cached stevedore-5.9.0-py3-none-any.whl.metadata (2.3 kB)
+Collecting rich (from bandit->-r requirements.txt (line 8))
+  Using cached rich-15.0.0-py3-none-any.whl.metadata (18 kB)
+Collecting mypy-extensions>=0.4.3 (from black->-r requirements.txt (line 9))
+  Using cached mypy_extensions-1.1.0-py3-none-any.whl.metadata (1.1 kB)
+Collecting pathspec>=1.0.0 (from black->-r requirements.txt (line 9))
+  Using cached pathspec-1.1.1-py3-none-any.whl.metadata (14 kB)
+Collecting pytokens~=0.4.0 (from black->-r requirements.txt (line 9))
+  Using cached pytokens-0.4.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (3.8 kB)
+Collecting markdown-it-py>=2.2.0 (from rich->bandit->-r requirements.txt (line 8))
+  Using cached markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich->bandit->-r requirements.txt (line 8))
+  Using cached mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+Using cached flask-3.1.3-py3-none-any.whl (103 kB)
+Using cached flask_pymongo-3.0.1-py3-none-any.whl (11 kB)
+Using cached python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+Using cached pymongo-4.17.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (2.3 MB)
+Using cached dnspython-2.8.0-py3-none-any.whl (331 kB)
+Using cached certifi-2026.6.17-py3-none-any.whl (133 kB)
+Using cached pytest-9.1.1-py3-none-any.whl (386 kB)
+Using cached pluggy-1.6.0-py3-none-any.whl (20 kB)
+Using cached pylint-4.0.6-py3-none-any.whl (538 kB)
+Using cached astroid-4.0.4-py3-none-any.whl (276 kB)
+Using cached isort-8.0.1-py3-none-any.whl (89 kB)
+Using cached mccabe-0.7.0-py2.py3-none-any.whl (7.3 kB)
+Using cached bandit-1.9.4-py3-none-any.whl (134 kB)
+Using cached black-26.5.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.9 MB)
+Using cached pytokens-0.4.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (268 kB)
+Using cached blinker-1.9.0-py3-none-any.whl (8.5 kB)
+Using cached click-8.4.2-py3-none-any.whl (119 kB)
+Using cached dill-0.4.1-py3-none-any.whl (120 kB)
+Using cached iniconfig-2.3.0-py3-none-any.whl (7.5 kB)
+Using cached itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Using cached jinja2-3.1.6-py3-none-any.whl (134 kB)
+Using cached markupsafe-3.0.3-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (23 kB)
+Using cached mypy_extensions-1.1.0-py3-none-any.whl (5.0 kB)
+Using cached packaging-26.2-py3-none-any.whl (100 kB)
+Using cached pathspec-1.1.1-py3-none-any.whl (57 kB)
+Using cached platformdirs-4.10.0-py3-none-any.whl (22 kB)
+Using cached pygments-2.20.0-py3-none-any.whl (1.2 MB)
+Using cached pyyaml-6.0.3-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (794 kB)
+Using cached stevedore-5.9.0-py3-none-any.whl (54 kB)
+Using cached tomlkit-0.15.0-py3-none-any.whl (41 kB)
+Using cached werkzeug-3.1.8-py3-none-any.whl (226 kB)
+Using cached rich-15.0.0-py3-none-any.whl (310 kB)
+Using cached markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+Using cached mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+Installing collected packages: tomlkit, stevedore, PyYAML, pytokens, python-dotenv, pygments, pluggy, platformdirs, pathspec, packaging, mypy-extensions, mdurl, mccabe, markupsafe, itsdangerous, isort, iniconfig, dnspython, dill, click, certifi, blinker, astroid, werkzeug, pytest, pymongo, pylint, markdown-it-py, jinja2, black, rich, Flask, Flask-PyMongo, bandit
+
+Successfully installed Flask-3.1.3 Flask-PyMongo-3.0.1 PyYAML-6.0.3 astroid-4.0.4 bandit-1.9.4 black-26.5.1 blinker-1.9.0 certifi-2026.6.17 click-8.4.2 dill-0.4.1 dnspython-2.8.0 iniconfig-2.3.0 isort-8.0.1 itsdangerous-2.2.0 jinja2-3.1.6 markdown-it-py-4.2.0 markupsafe-3.0.3 mccabe-0.7.0 mdurl-0.1.2 mypy-extensions-1.1.0 packaging-26.2 pathspec-1.1.1 platformdirs-4.10.0 pluggy-1.6.0 pygments-2.20.0 pylint-4.0.6 pymongo-4.17.0 pytest-9.1.1 python-dotenv-1.2.2 pytokens-0.4.1 rich-15.0.0 stevedore-5.9.0 tomlkit-0.15.0 werkzeug-3.1.8
+[Pipeline] }
+$ ssh-agent -k
+unset SSH_AUTH_SOCK;
+unset SSH_AGENT_PID;
+echo Agent pid 1566039 killed;
+[ssh-agent] Stopped.
+[Pipeline] // sshagent
+[Pipeline] }
+[Pipeline] // dir
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+Pipeline completed successfully!
+[Pipeline] mail
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withCredentials
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS

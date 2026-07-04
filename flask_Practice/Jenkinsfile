@@ -75,46 +75,54 @@ pipeline {
                         // 1. Clean the target directory and recreate it
                         sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} 'rm -rf ~/flask_Practice && mkdir -p ~/flask_Practice'"
                         
+                        // Clean up the local Jenkins-side venv and caches so scp doesn't copy them
+                        sh "rm -rf venv __pycache__ .pytest_cache test-reports"
+                        
                         // 2. Copy application files to EC2
                         sh "scp -o StrictHostKeyChecking=no -r * ${EC2_USER}@${EC2_PUBLIC_IP}:~/flask_Practice/"
-
                         
-                        // 3. Setup and start the application on EC2 (all inline)
-                        // Using single quotes (''') prevents Groovy secrets interpolation warnings.
-                        sh '''
-                            ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} '
-                                cd ~/flask_Practice
-                                
-                                # Stop any previous running instances of the app to free up port 5000
-                                pkill -f "app.py" || true
+                        // 3. Setup and start the application on EC2 using Heredoc
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} "bash -s" << 'EOF'
+cd ~/flask_Practice
 
-                                #Install pip
-                                sudo apt update
-                                sudo apt install -y python3-pip
-                                sudo apt update python3-pip
-                                sudo apt install -y python3-venv
+# Stop any previous running instances of the app to free up port 5000
+pkill -f "app.py" || true
 
-                                # Setup the Python environment
-                                python3 -m venv venv
-                                . venv/bin/activate
-                                pip install -r requirements.txt
-                                
-                                # Create the database .env file
-                                echo "MONGO_URI=${MONGO_URI}" > .env
-                                echo "SECRET_KEY=${SECRET_KEY}" >> .env
-                                
-                                # Start the app in the background and fully detach it
-                                nohup python3 app.py --host=0.0.0.0 --port=5000 > flask.log 2>&1 < /dev/null &
-                                
-                                # Brief pause to allow the server to start before closing the SSH session
-                                sleep 2
-                            '
-                        '''
+# Conditional installation of system dependencies
+if ! command -v pip3 &> /dev/null || ! python3 -c "import venv" &> /dev/null; then
+    echo "Python packages missing. Installing system dependencies..."
+    sudo DEBIAN_FRONTEND=noninteractive apt-get update -y
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \\
+        -o Dpkg::Options::="--force-confdef" \\
+        -o Dpkg::Options::="--force-confold" \\
+        python3-pip python3-venv
+else
+    echo "Python dependencies (pip & venv) are already installed. Skipping system updates."
+fi
+
+# Setup the Python environment
+python3 -m venv venv
+. venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# Create the database .env file
+echo "MONGO_URI=${MONGO_URI}" > .env
+echo "SECRET_KEY=${SECRET_KEY}" >> .env
+
+# Start the app in the background and fully detach it
+nohup python3 app.py --host=0.0.0.0 --port=5000 > flask.log 2>&1 < /dev/null &
+
+# Brief pause to allow the server to start before closing the SSH session
+sleep 2
+EOF
+                        """
                     }
                 }
             }
-        }
-    }
+        }   
+     }
 
     post {
         success {
