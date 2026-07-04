@@ -72,11 +72,12 @@ pipeline {
                 echo 'Deploying application to AWS EC2 staging environment...'
                 dir('flask_Practice') {
                     sshagent(credentials: ["${EC2_CREDENTIALS_ID}"]) {
-                        // 1. Ensure target directory exists on EC2
-                        sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} 'mkdir -p ~/flask_Practice'"
+                        // 1. Clean the target directory and recreate it
+                        sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} 'rm -rf ~/flask_Practice && mkdir -p ~/flask_Practice'"
                         
                         // 2. Copy application files to EC2
                         sh "scp -o StrictHostKeyChecking=no -r * ${EC2_USER}@${EC2_PUBLIC_IP}:~/flask_Practice/"
+
                         
                         // 3. Setup and start the application on EC2 (all inline)
                         // Using single quotes (''') prevents Groovy secrets interpolation warnings.
@@ -89,9 +90,9 @@ pipeline {
 
                                 #Install pip
                                 sudo apt update
-                                sudo apt install python3-pip
-                                sudo apt update python3-pip
-                                sudo apt install python3.14-venv
+                                sudo apt install -y python3-pip
+                                sudo apt update -y python3-pip
+                                sudo apt install -y python3-venv
 
                                 # Setup the Python environment
                                 python3 -m venv venv
