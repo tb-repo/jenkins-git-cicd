@@ -15,6 +15,8 @@ pipeline {
         EC2_PUBLIC_IP = credentials('HV-B16A-TB-EC2-IP')
         EC2_USER = credentials('HV-B16A-TB-EC2-USER')
         EC2_CREDENTIALS_ID = "HV-B16A-TB-EC2-Keypair"
+        MONGO_URI = credentials('HV-B16A-TB-MONGO-URI')
+        SECRET_KEY = credentials('HV-B16A-TB-SECRET-KEY')    
     }
 
     stages {
@@ -70,19 +72,43 @@ pipeline {
                 echo 'Deploying application to AWS EC2 staging environment...'
                 dir('flask_Practice') {
                     sshagent(credentials: ["${EC2_CREDENTIALS_ID}"]) {
-                        // Ensure the target directory exists on the EC2 instance
+                        // 1. Ensure target directory exists on EC2
                         sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} 'mkdir -p ~/flask_Practice'"
                         
-                        // Copy repository contents to EC2
+                        // 2. Copy application files to EC2
                         sh "scp -o StrictHostKeyChecking=no -r * ${EC2_USER}@${EC2_PUBLIC_IP}:~/flask_Practice/"
                         
-                        // Execute startup script on EC2
-                        sh "ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} 'cd ~/flask_Practice && chmod +x start_flask.sh && ./start_flask.sh'"
+                        // 3. Setup and start the application on EC2 (all inline)
+                        // Using single quotes (''') prevents Groovy secrets interpolation warnings.
+                        sh '''
+                            ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} '
+                                cd ~/flask_Practice
+                                
+                                # Stop any previous running instances of the app to free up port 5000
+                                pkill -f "app.py" || true
+                                
+                                # Setup the Python environment
+                                python3 -m venv venv
+                                . venv/bin/activate
+                                pip install --upgrade pip
+                                pip install -r requirements.txt
+                                
+                                # Create the database .env file
+                                echo "MONGO_URI=${MONGO_URI}" > .env
+                                echo "SECRET_KEY=${SECRET_KEY}" >> .env
+                                
+                                # Start the app in the background and fully detach it
+                                nohup python3 app.py --host=0.0.0.0 --port=5000 > flask.log 2>&1 < /dev/null &
+                                
+                                # Brief pause to allow the server to start before closing the SSH session
+                                sleep 2
+                            '
+                        '''
                     }
                 }
             }
         }
-    }
+    } // <-- This is the closing bracket for stages that was missing
 
     post {
         success {
