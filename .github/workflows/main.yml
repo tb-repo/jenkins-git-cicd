@@ -1,4 +1,5 @@
 name: GitHub Actions CI/CD Pipeline
+
 on:
   push:
     branches:
@@ -10,6 +11,7 @@ on:
     branches:
       - main
       - staging
+
 jobs:
   test:
     name: Install Dependencies & Run Tests
@@ -17,29 +19,34 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - name: Install dependencies
         run: |
           cd flask_Practice
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest
+
       - name: Run unit tests
         run: |
           cd flask_Practice
           pytest test_app.py
+
   deploy-staging:
-    name: Deploy to Staging Staging EC2
+    name: Deploy Staging Application (Port 5100)
     needs: test
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      # Copy only flask_Practice contents to temp staging folder on EC2
+
+      # 1. Copy files to a temporary staging folder
       - name: Copy files via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -47,9 +54,10 @@ jobs:
           username: ${{ secrets.STAGING_EC2_USER }}
           key: ${{ secrets.STAGING_EC2_SSH_KEY }}
           source: "flask_Practice/*"
-          target: "~/flask_Practice_temp"
+          target: "~/git_cicd/stage_temp"
           strip_components: 1
-      # Execute deployment steps on remote staging server
+
+      # 2. Re-organize, configure, and start the app on port 5100
       - name: Setup and Launch Staging Server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -57,30 +65,40 @@ jobs:
           username: ${{ secrets.STAGING_EC2_USER }}
           key: ${{ secrets.STAGING_EC2_SSH_KEY }}
           script: |
-            rm -rf ~/flask_Practice
-            mv ~/flask_Practice_temp ~/flask_Practice
-            cd ~/flask_Practice
+            # Clean old staging directory and move new files
+            rm -rf ~/git_cicd/stage
+            mkdir -p ~/git_cicd/stage
+            mv ~/git_cicd/stage_temp/* ~/git_cicd/stage/
+            rm -rf ~/git_cicd/stage_temp
+            cd ~/git_cicd/stage
             
-            pkill -f "app.py" || true
+            # Stop ONLY the staging application running on port 5100
+            pkill -f "port=5100" || true
+            
+            # Create/Activate environment
             python3 -m venv venv
             . venv/bin/activate
             pip install --upgrade pip
             pip install -r requirements.txt
             
+            # Create staging environment variables
             echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
             echo "SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }}" >> .env
             
-            nohup python3 app.py --host=0.0.0.0 --port=5000 > flask.log 2>&1 < /dev/null &
+            # Start on port 5100 in background and detach
+            nohup python3 app.py --host=0.0.0.0 --port=5100 > flask.log 2>&1 < /dev/null &
             sleep 2
+
   deploy-production:
-    name: Deploy to Production EC2
+    name: Deploy Production Application (Port 5000)
     needs: test
     if: startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      # Copy only flask_Practice contents to temp production folder on EC2
+
+      # 1. Copy files to a temporary production folder
       - name: Copy files via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -88,9 +106,10 @@ jobs:
           username: ${{ secrets.PROD_EC2_USER }}
           key: ${{ secrets.PROD_EC2_SSH_KEY }}
           source: "flask_Practice/*"
-          target: "~/flask_Practice_temp"
+          target: "~/git_cicd/prod_temp"
           strip_components: 1
-      # Execute deployment steps on remote production server
+
+      # 2. Re-organize, configure, and start the app on port 5000
       - name: Setup and Launch Production Server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -98,18 +117,26 @@ jobs:
           username: ${{ secrets.PROD_EC2_USER }}
           key: ${{ secrets.PROD_EC2_SSH_KEY }}
           script: |
-            rm -rf ~/flask_Practice
-            mv ~/flask_Practice_temp ~/flask_Practice
-            cd ~/flask_Practice
+            # Clean old prod directory and move new files
+            rm -rf ~/git_cicd/prod
+            mkdir -p ~/git_cicd/prod
+            mv ~/git_cicd/prod_temp/* ~/git_cicd/prod/
+            rm -rf ~/git_cicd/prod_temp
+            cd ~/git_cicd/prod
             
-            pkill -f "app.py" || true
+            # Stop ONLY the production application running on port 5000
+            pkill -f "port=5000" || true
+            
+            # Create/Activate environment
             python3 -m venv venv
             . venv/bin/activate
             pip install --upgrade pip
             pip install -r requirements.txt
             
+            # Create production environment variables
             echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
             echo "SECRET_KEY=${{ secrets.FLASK_SECRET_KEY }}" >> .env
             
+            # Start on port 5000 in background and detach
             nohup python3 app.py --host=0.0.0.0 --port=5000 > flask.log 2>&1 < /dev/null &
             sleep 2
