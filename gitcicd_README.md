@@ -1,4 +1,4 @@
-# GitHub Actions CI/CD Pipeline & Dual Environment Deployment Guide 🚀
+# GitHub Actions CI/CD Pipeline & Dual Environment Deployment Guide
 
 This document details the multi-environment CI/CD pipeline automated using **GitHub Actions**. It guides you through the repository configuration, environment secrets management, pipeline workflow logic defined in [.github/workflows/cicd.yml](.github/workflows/cicd.yml), and a visual step-by-step trace of staging and production deployments.
 
