@@ -1,120 +1,174 @@
-# Student Registration System with Jenkins CI/CD
+# Student Registration System
 
-A simple **Flask** web application to manage student records with **MongoDB** as the backend database. Users can **add, view, update, and delete** student details.
-
-The repository includes a Jenkins pipeline configuration to automatically build, test, and deploy the application to an **AWS EC2** staging server on every push to the `main` branch.
+A professional, full-featured **Flask** web application designed to manage student records using **MongoDB** (Atlas) as the backend database. This project showcases modern web application development integrated with two distinct automated CI/CD pipeline workflows: **Jenkins** and **GitHub Actions** deploying to **AWS EC2**.
 
 ---
 
-## Project Structure
+## Key Features
+
+* **Full CRUD Lifecycle:** Add, read, update, and delete student records with intuitive controls.
+* **Interactive UI:** A responsive user interface built using **Bootstrap 5** and Jinja2 templating.
+* **Data Persistence:** Cloud-hosted MongoDB cluster (Atlas) integration.
+* **Safety Protocols:** Explicit confirmation dialogs before deleting records to prevent data loss.
+* **Automated Testing:** Unit test suite implemented with `pytest`.
+* **Dual CI/CD Pipelines:** Setup with both pull-based/webhook-triggered **Jenkins** and multi-environment **GitHub Actions**.
+
+---
+
+## Technology Stack
+
+* **Backend Framework:** Python (Flask)
+* **Database:** MongoDB (via Flask-PyMongo)
+* **Frontend Design:** HTML5, Jinja2, Bootstrap 5
+* **Unit Testing:** Pytest
+* **CI/CD Tools:** Jenkins, GitHub Actions
+* **Target Environment:** AWS EC2 (Ubuntu Linux)
+
+---
+
+## Repository Directory Layout
 
 ```
-project/
-│
+git-jenkins-cicd/
+├── .github/
+│   └── workflows/
+│       └── cicd.yml           # GitHub Actions workflow configuration
 ├── flask_Practice/
-│   ├── templates/          # HTML templates (Bootstrap 5)
-│   ├── app.py              # Main Flask application
-│   ├── test_app.py         # Pytest unit tests
-│   ├── requirements.txt    # Python dependencies
-│   ├── start_flask.sh      # Staging deployment startup script
-│   ├── Jenkinsfile         # Jenkins declarative pipeline
-│   └── .env                # Local environment configuration
-│
-└── README.md               # Pipeline and documentation (this file)
+│   ├── templates/             # HTML Jinja2 UI templates
+│   │   ├── base.html          # Base layout template
+│   │   ├── index.html         # Student directory view
+│   │   ├── add_student.html   # Add student form
+│   │   └── update_student.html# Edit student form
+│   ├── app.py                 # Main Flask application
+│   ├── test_app.py            # Pytest test cases
+│   ├── requirements.txt       # Project python requirements
+│   ├── start_flask.sh         # Startup shell script for deployment
+│   ├── Jenkinsfile            # Jenkins declarative pipeline script
+│   └── .env                   # Environment config (git-ignored locally)
+├── images/                    # Screenshot documentation assets
+├── README.md                  # Main project landing page (this file)
+├── jenkinscicd_README.md      # Detailed Jenkins CI/CD pipeline guide
+└── gitcicd_README.md          # Detailed GitHub Actions CI/CD pipeline guide
 ```
 
 ---
 
-## Local Setup Instructions
+## Local Setup & Execution Guide
 
-### 1. Clone the repository
+Follow these steps to run and test the application on your local machine.
+
+### Step 1: Clone the Repository
+Clone the repository and navigate to the application directory:
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/tb-repo/jenkins-git-cicd.git
 cd git-jenkins-cicd/flask_Practice
 ```
+* **Step Verification Screenshot:**
+  ![Cloning Repository](images/repo-clone-1.png)
 
-### 2. Create and activate a virtual environment
+### Step 2: Establish Virtual Environment
+Create and activate a clean Python virtual environment to manage dependencies:
 ```bash
+# Windows
 python -m venv venv
-# Activate venv
-# Windows:
 venv\Scripts\activate
-# Linux / Mac:
+
+# Linux / macOS
+python3 -m venv venv
 source venv/bin/activate
 ```
+* **Step Verification Screenshot:**
+  ![Local App Startup Logs](images/app_run_local1.png)
 
-### 3. Install dependencies
+### Step 3: Create and configure a new mongodb cluster
+
+* **Step Verification Screenshot:**
+  ![MongoDB](images/mongodb-1.png)
+  ![MongoDB](images/mongodb-2.png)
+
+### Step 4: Install Required Dependencies
+Install the required packages using pip:
 ```bash
 pip install -r requirements.txt
 ```
-
-### 4. Configure environment variables
+### Step 5: Configure the Local Environment
 Create a `.env` file in the `flask_Practice/` directory:
 ```env
-MONGO_URI=mongodb+srv://<username>:<password>@<cluster-address>/student?retryWrites=true&w=majority
-SECRET_KEY=any_random_secret_string
+MONGO_URI=mongodb+srv://studentregadmin:<password>@studentregsys.akzmpnb.mongodb.net/student?retryWrites=true&w=majority
+SECRET_KEY=your_secure_random_key_here
 ```
+### Step 6: Execute Unit Tests
+Verify the environment sanity by running the test suite locally:
+```bash
+pytest test_app.py
+```
+* **Test Execution Screenshot:**
+  ![Pytest Local Verification](images/pytest_local_result.png)
 
-### 5. Run the application
+### Step 7: Start Flask Server
+Run the Flask application entry point:
 ```bash
 python app.py
 ```
-Open your browser at [http://localhost:5000](http://localhost:5000)
+* **Application Execution Console:**
+  ![Local Server Run Console](images/app_run_local1.png)
 
 ---
 
-## Jenkins CI/CD Pipeline (AWS EC2 Deployment)
+## Web Application Visual Tour
 
-The `Jenkinsfile` ([flask_Practice/Jenkinsfile](file:///d:/HeroVired/Assignments/git-jenkins-cicd/flask_Practice/Jenkinsfile)) automates the entire delivery process.
+The application provides a seamless experience for managing student registrations:
 
-### Pipeline Stages
-1. **Git Checkout:** Checks out the codebase from the specified GitHub repository on the `main` branch.
-2. **Build:** Sets up a local Python virtual environment (`venv`) and installs the project's pip dependencies.
-3. **Test:** Runs unit tests using the `pytest` framework and records the results using the Jenkins JUnit plugin.
-4. **Deploy (AWS EC2):** 
-   - Utilizes the `sshagent` block to access the remote EC2 instance via SSH.
-   - Creates the deployment folder `~/flask_Practice` on EC2 if it does not exist.
-   - Securely copies (`scp`) the project files to the target EC2 machine.
-   - SSHs into the EC2 instance and triggers [start_flask.sh](file:///d:/HeroVired/Assignments/git-jenkins-cicd/flask_Practice/start_flask.sh) which installs Python dependencies and starts the Flask server in the background using `nohup`.
-
----
-
-## AWS EC2 & Jenkins Prerequisites
-
-To set up this pipeline successfully, you must complete the following configuration:
-
-### 1. Jenkins SSH Credentials Setup
-* Save your EC2 Private Key (`.pem` file) in Jenkins.
-* Go to **Manage Jenkins** -> **Credentials** -> **System** -> **Global credentials**.
-* Add a credential of type **"SSH Username with private key"**.
-* Set **ID** as `HV-EC2-Key` (or whatever ID you prefer, updating the `EC2_SSH_CREDENTIALS_ID` parameter in the pipeline).
-* Set **Username** as `ubuntu` (default EC2 username).
-* Enter the private key directly.
-
-### 2. Jenkins Plugins
-* Install the **SSH Agent Plugin** in Jenkins.
-* Install the **GitHub Integration Plugin** and **JUnit Plugin**.
-
-### 3. AWS Security Group Config
-* Navigate to your EC2 instance in the AWS Console.
-* Go to the attached Security Group and add an **Inbound Rule**:
-  * **Type:** Custom TCP
-  * **Port Range:** `5000`
-  * **Source:** `Anywhere-IPv4` (`0.0.0.0/0`) or limit to your IP for security.
-
-### 4. Git Webhook
-* Go to your repository settings on GitHub -> **Webhooks** -> **Add Webhook**.
-* Set **Payload URL** to `http://<your-jenkins-url>/github-webhook/`.
-* Set **Content type** to `application/json`.
-* Trigger on `Just the push event`.
-
-### 5. Email Notification (SMTP) Config
-* In Jenkins, navigate to **Manage Jenkins** -> **System** -> **E-mail Notification**.
-* Enter your SMTP server details, authentication credentials, and default sender address.
-* You can change the recipient email at build-time using the `EMAIL_TO` parameter.
+| View Page | Description | Interface Preview |
+|---|---|---|
+| **Main Dashboard / Student Directory** | Displays the list of registered students from MongoDB. Provides quick links to edit or delete any entry. | ![Dashboard View](images/app_run_local2.png) |
+| **Add New Student** | A clean, form-based interface to input the student's name, email, course, and age. | ![Add Student View](images/StdRegSys_working2.png) |
+| **Validation & Submission** | Ensures data integrity on addition, displaying success notifications when students are registered. | ![Add Success](images/app_run_local3.png) |
+| **Update Student Details** | Pre-populates the student records allowing modifications to courses, names, or emails securely. | ![Edit Student View](images/app_run_local4.png) |
+| **Delete Confirmation Dialog** | Safeguards data by requesting explicit confirmation before erasing records. | ![Delete Confirmation](images/app_run_local6.png) |
+| **Database Sync Verification** | Records are seamlessly synced and persistent in the MongoDB Cloud Cluster. | ![MongoDB Document Sync](images/mongodb-3.png) |
 
 ---
 
-## License
+## The CI/CD Architecture Hub
 
-MIT License
+This project is deployed automatically to **AWS EC2 Staging & Production environments** via two automated pipelines. Click on either pathway below to explore the detailed step-by-step setup guides, configurations, and pipeline executions.
+
+```mermaid
+graph TD
+    A[Code Push to GitHub] --> B{Choose Pipeline}
+    B -->|Jenkins Workflow| C[[Jenkins Pipeline Guide]]
+    B -->|GitHub Actions Workflow| D[[GitHub Actions Guide]]
+    C --> E[AWS EC2 Staging - Port 5000]
+    D -->|Staging Branch Push| F[AWS EC2 Staging - Port 5100]
+    D -->|Release Tag v* Push| G[AWS EC2 Production - Port 5000]
+```
+
+### Comparative Pipeline Matrix
+
+| Feature / Detail | Jenkins CI/CD Pipeline | GitHub Actions CI/CD Pipeline |
+|---|---|---|
+| **Primary File** | [Jenkinsfile](file:///d:/HeroVired/Assignments/git-jenkins-cicd/Jenkinsfile) | [cicd.yml](file:///d:/HeroVired/Assignments/git-jenkins-cicd/.github/workflows/cicd.yml) |
+| **Pipeline Style** | Declarative Jenkins Pipeline | GitHub YAML Workflows |
+| **Trigger Mechanism** | GitHub Webhook (`githubPush()`) | Git Push & Pull Requests |
+| **Environments** | Single Staging Target | Dual Environments: Staging & Production |
+| **Target Ports** | Staging: **Port 5000** | Staging: **Port 5100** \| Production: **Port 5000** |
+| **Notification Type** | SMTP Email Alerts (Gmail SMTP) | Native GitHub Job Summary logs |
+
+---
+
+> [!IMPORTANT]
+> ### Pipeline Guides & Documentation Branches
+> 
+> Explore the detailed, step-by-step documentation for setting up, triggering, and verifying the pipelines:
+> 
+> * **[Jenkins CI/CD Pipeline Setup & Execution Guide](jenkinscicd_README.md)**
+>   *Includes AWS EC2 provisioning details, Jenkins plugin installations, credential configurations, and successful/failure pipeline execution traces.*
+> 
+> * **[GitHub Actions CI/CD Pipeline Setup & Execution Guide](gitcicd_README.md)**
+>   *Includes Environment settings, repository secret configurations, multi-branch triggering rules, and log verifications for staging (v5100) vs production (v5000) tag deployments.*
+
+---
+
+## 📄 License
+This project is licensed under the terms of the **MIT License**.
